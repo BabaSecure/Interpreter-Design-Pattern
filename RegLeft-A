@@ -1,0 +1,71 @@
+interface Expression {
+    int interpret();
+}
+
+class NumberExpression implements Expression {
+    int number;
+ 
+    NumberExpression(int number) {
+        this.number = number;
+    }
+ 
+    public int interpret() {
+        return number;
+    }
+}
+
+class AdditionExpression implements Expression {
+    Expression leftExpression;
+    Expression rightExpression;
+ 
+    AdditionExpression(Expression leftExpression, Expression rightExpression) {
+        this.leftExpression = leftExpression;
+        this.rightExpression = rightExpression;
+    }
+ 
+    public int interpret() {
+        return leftExpression.interpret() + rightExpression.interpret();
+    }
+}
+
+class Interpreter {
+    int pos = 0;
+    String input;
+    char[] inputArray;
+
+    Interpreter(String input) {
+        this.input = input;
+        this.inputArray = input.toCharArray();
+    }
+
+    public Expression parse() {
+        pos = 0;
+        return parseAddition();
+    }
+
+    private Expression parseAddition() {
+        Expression left = parseNumber();
+        while (pos < inputArray.length && inputArray[pos] == '+') {
+            pos++;
+            Expression right = parseNumber();
+            left = new AdditionExpression(left, right);
+        }
+        return left;
+    }
+
+    private Expression parseNumber() {
+        StringBuilder sb = new StringBuilder();
+        while (pos < inputArray.length && Character.isDigit(inputArray[pos])) {
+            sb.append(inputArray[pos++]);
+        }
+        return new NumberExpression(Integer.parseInt(sb.toString()));
+    }
+}
+
+class InterpreterDemo {
+    public static void main(String[] args) {
+        Interpreter interpreter = new Interpreter("10+20+30");
+        Expression expression = interpreter.parse();
+        System.out.println("Result: " + expression.interpret());
+    }
+}
